@@ -18,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -33,6 +34,7 @@ import stirling.software.common.model.ApplicationProperties;
 @RequiredArgsConstructor
 public class AppConfig {
 
+    private final Environment env;
     private final ApplicationProperties applicationProperties;
 
     @Getter
@@ -58,6 +60,11 @@ public class AppConfig {
     @Bean(name = "loginEnabled")
     public boolean loginEnabled() {
         return applicationProperties.getSecurity().getEnableLogin();
+    }
+
+    @Bean
+    public boolean activeSecurity() {
+        return env.getProperty("DOCKER_SECURITY_ENABLED", Boolean.class, true);
     }
 
     @Bean(name = "appName")
@@ -143,10 +150,10 @@ public class AppConfig {
         }
     }
 
-    @ConditionalOnMissingClass("stirling.software.SPDF.config.security.SecurityConfiguration")
-    @Bean(name = "activeSecurity")
+    @Bean(name = "missingActiveSecurity")
+    @ConditionalOnMissingClass("stirling.software.enterprise.security.SecurityConfiguration")
     public boolean missingActiveSecurity() {
-        return false;
+        return true;
     }
 
     @Bean(name = "directoryFilter")
