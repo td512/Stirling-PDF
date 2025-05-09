@@ -1,7 +1,5 @@
 package stirling.software.common.configuration;
 
-import io.github.pixee.security.SystemCommand;
-import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,8 +7,9 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Predicate;
-
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -23,9 +22,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.thymeleaf.spring6.SpringTemplateEngine;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import stirling.software.common.model.ApplicationProperties;
 
 @Lazy
@@ -151,7 +147,7 @@ public class AppConfig {
     }
 
     @Bean(name = "missingActiveSecurity")
-    @ConditionalOnMissingClass("stirling.software.enterprise.security.SecurityConfiguration")
+    @ConditionalOnMissingClass("stirling.software.proprietary.security.SecurityConfiguration")
     public boolean missingActiveSecurity() {
         return true;
     }
