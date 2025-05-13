@@ -29,10 +29,26 @@ ext {
     tempJrePath = null
 }
 
+// todo: package jar with option for enterprise features to be included
+jar {
+    enabled = false
+    manifest {
+        attributes "Implementation-Title": "Stirling-PDF",
+            "Implementation-Version": project.version
+    }
+}
+
+bootJar {
+    enabled = false
+}
+
 allprojects {
-    bootJar {
-//        mainClass = 'stirling.software.SPDF.SPDFApplication'
-        enabled = false
+    afterEvaluate {
+        if (project == rootProject) return
+        tasks.register('wrapper', Wrapper) {
+            gradleVersion = '8.14'
+            distributionType = Wrapper.DistributionType.ALL
+        }
     }
 }
 
@@ -120,7 +136,7 @@ sourceSets {
             }
 
             if (System.getenv("STIRLING_PDF_DESKTOP_UI") == "false") {
-                exclude "stirling/software/SPDF/UI/impl/**"
+                exclude "stirling/software/spdf/UI/impl/**"
             }
         }
     }
@@ -138,15 +154,6 @@ static def getMacVersion(String version) {
     def currentYear = Year.now().getValue()
     def versionParts = version.split("\\.", 2)
     return "${currentYear}.${versionParts.length > 1 ? versionParts[1] : versionParts[0]}"
-}
-
-// todo: package jar with option for enterprise features to be included
-jar {
-    enabled = false
-    manifest {
-        attributes "Implementation-Title": "Stirling-PDF",
-                "Implementation-Version": project.version
-    }
 }
 
 jpackage {
@@ -258,6 +265,11 @@ jpackage {
     // Add copyright and license information
     copyright = "Copyright © 2024 Stirling Software"
     licenseFile = "LICENSE"
+}
+
+tasks.wrapper {
+    gradleVersion = "8.14"
+    distributionType = Wrapper.DistributionType.ALL
 }
 
 tasks.register('jpackageMacX64') {
@@ -443,12 +455,6 @@ swaggerhubUpload {
     token = "${System.getenv("SWAGGERHUB_API_KEY")}"  // Your SwaggerHub API key, passed as an environment variable
     oas = "3.0.0"  // The version of the OpenAPI Specification you"re using
 }
-
-tasks.wrapper {
-    gradleVersion = "8.14"
-    distributionType = Wrapper.DistributionType.ALL
-}
-
 
 tasks.register('writeVersion') {
     def propsFile = file("$projectDir/stirling-pdf/src/main/resources/version.properties")
