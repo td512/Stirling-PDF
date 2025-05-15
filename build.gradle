@@ -43,6 +43,9 @@ bootJar {
 }
 
 allprojects {
+    group = "stirling.software"
+    version = "0.46.0"
+
     afterEvaluate {
         if (project == rootProject) return
         tasks.register('wrapper', Wrapper) {
@@ -58,8 +61,7 @@ subprojects {
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
-    group = "stirling.software"
-    version = "0.46.0"
+
 
     java {
         // 17 is lowest but we support and recommend 21
@@ -456,13 +458,26 @@ swaggerhubUpload {
     oas = "3.0.0"  // The version of the OpenAPI Specification you"re using
 }
 
+tasks.named("test") {
+    useJUnitPlatform()
+}
+
 tasks.register('writeVersion') {
     def propsFile = file("$projectDir/stirling-pdf/src/main/resources/version.properties")
     def propsDir = propsFile.parentFile
 
     doLast {
-        if (!propsDir.exists()) {
+        if (propsDir.exists()) {
+            if (propsFile.exists()) {
+                println "File exists: $propsFile"
+            } else {
+                println "$propsFile does not exist. Creating file."
+                propsFile.createNewFile()
+            }
+        } else {
+            println "Creating directory: $propsDir"
             propsDir.mkdirs()
+            propsFile.createNewFile()
         }
 
         def props = new Properties()
@@ -472,10 +487,6 @@ tasks.register('writeVersion') {
 }
 
 processResources.dependsOn(writeVersion)
-
-tasks.named("test") {
-    useJUnitPlatform()
-}
 
 tasks.register('printVersion') {
     doLast {
